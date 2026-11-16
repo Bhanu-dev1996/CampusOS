@@ -1,0 +1,14 @@
+CAMPUSOS — QUICK BRAND GUIDE
+
+Brand character: modern, educational, confident, forward-looking.
+Primary colors (visual estimates): Navy #0B4F88; Cyan #08C4CC; Blue #168BD0; Slate #6D7C88; White #FFFFFF.
+
+Logo use
+• Prefer the full horizontal logo for headers, documents, and presentations.
+• Use the icon-only mark for app icons and favicons.
+• Use transparent assets on colored surfaces and white-background assets on light surfaces.
+• Preserve proportions; do not recolor, skew, or add effects.
+
+Typography in source artwork appears to be a geometric sans-serif. Use a clean sans-serif such as Inter, Manrope, or Montserrat for supporting materials. This is a suggested match, not a confirmed original font.
+
+Note: colors and typography are visual estimates. SVG files are raster-backed wrappers, not true vector paths.
