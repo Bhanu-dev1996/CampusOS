@@ -1,6 +1,6 @@
 # CampusOS
 
-Multi-tenant education ERP — documentation in [`docs/`](./docs/README.md).
+Single monorepo: **`apps/web`** (Next.js) and **`apps/api`** (FastAPI) live in this repository (not submodules). Documentation: [`docs/`](./docs/README.md).
 
 ## Layout
 
