@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
 from app.api.deps import CurrentUser, DbSession
-from app.core.constants import AppRole
 from app.core.errors import AppError
 from app.core.security import create_access_token
 from app.modules.auth.schemas import LoginRequest, MeResponse, SwitchRoleRequest, TokenResponse

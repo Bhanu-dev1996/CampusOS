@@ -13,7 +13,7 @@ from app.core.constants import AppRole
 from app.core.errors import AppError
 from app.core.security import decode_access_token
 from app.db.session import get_session, set_tenant_on_session
-from app.models.user import User, UserTenantRole
+from app.models.user import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
 

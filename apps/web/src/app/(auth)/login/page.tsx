@@ -43,7 +43,7 @@ export default function LoginPage() {
       const message =
         err instanceof ApiError
           ? err.message
-          : "Could not reach API — start Docker/Postgres and `uvicorn` (see apps/api/README.md).";
+          : "Could not reach API — start the backend (`uvicorn` in apps/api; see docs/SUPABASE.md).";
       toast.error(message);
     } finally {
       setLoading(false);

@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     """Supabase direct connection URI. `postgresql://` and `postgres://` are normalized to asyncpg."""
     database_ssl: bool | None = None
     """Force SSL for asyncpg. Auto-enabled when host contains `supabase.co` or `pooler.supabase.com`."""
+    database_ssl_verify: bool = True
+    """Verify TLS certificates. Set false in development only (e.g. corporate SSL inspection on Windows)."""
 
     redis_url: str = "redis://localhost:6379/0"
 
@@ -37,6 +39,12 @@ class Settings(BaseSettings):
             return self.database_ssl
         host = self.database_url.lower()
         return "supabase.co" in host or "pooler.supabase.com" in host
+
+    @property
+    def effective_database_ssl_verify(self) -> bool:
+        if self.app_env != "development":
+            return True
+        return self.database_ssl_verify
 
     @property
     def cors_origin_list(self) -> list[str]:

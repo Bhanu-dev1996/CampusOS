@@ -61,8 +61,8 @@ campusos/
 ├── packages/
 │   └── shared-types/        # OpenAPI-generated or hand-shared DTOs (optional)
 ├── infra/
-│   ├── docker/              # optional local Redis (Postgres = Supabase)
-│   └── migrations/          # Alembic revisions
+│   └── docker/              # optional local Redis (Postgres = Supabase)
+├── apps/api/alembic/        # Alembic migrations (versions/)
 ├── scripts/
 │   └── seed_demo.py         # Horizon Institute demo dataset
 ├── docs/                    # This documentation suite

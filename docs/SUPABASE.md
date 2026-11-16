@@ -35,6 +35,18 @@ If the password has `@`, `#`, or `%`, [URL-encode](https://www.urlencoder.org/) 
 
 Keep your existing `JWT_SECRET`, `CORS_ORIGINS`, etc.
 
+### TLS errors on Windows (`CERTIFICATE_VERIFY_FAILED`)
+
+If `alembic` or the API fail with `SSLCertVerificationError` (common behind corporate SSL inspection), add **only for local development**:
+
+```env
+DATABASE_SSL_VERIFY=false
+```
+
+Production (`APP_ENV` not `development`) always verifies certificates regardless of this flag.
+
+Prefer fixing trust: install your organization’s root CA, or rely on the app’s bundled [certifi](https://pypi.org/project/certifi/) CAs via `DATABASE_SSL_VERIFY=true` (default).
+
 ## 4. Run migrations and seed
 
 ```bash

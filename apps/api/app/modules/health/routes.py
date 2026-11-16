@@ -1,5 +1,7 @@
 from fastapi import APIRouter
+from redis.exceptions import RedisError
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.deps import DbSession
 from app.core.config import get_settings
@@ -20,7 +22,7 @@ async def ready(session: DbSession) -> dict[str, str | bool]:
     try:
         await session.execute(text("SELECT 1"))
         db_ok = True
-    except Exception:
+    except SQLAlchemyError:
         db_ok = False
 
     try:
@@ -29,7 +31,7 @@ async def ready(session: DbSession) -> dict[str, str | bool]:
         client = redis.from_url(get_settings().redis_url)
         redis_ok = bool(await client.ping())
         await client.aclose()
-    except Exception:
+    except (RedisError, OSError):
         redis_ok = False
 
     status = "ready" if db_ok and redis_ok else "degraded"
