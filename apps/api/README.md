@@ -6,31 +6,18 @@ FastAPI modular monolith for the CampusOS MVP. Contracts: [`../../docs/API_SPECI
 
 - Python 3.11+
 - FastAPI, SQLAlchemy 2.0 (async), Alembic, Pydantic v2
-- PostgreSQL 16, Redis 7
+- **PostgreSQL via [Supabase](../../docs/SUPABASE.md)** (hosted)
+- Redis 7 (optional local Docker or Upstash)
 
 ## Setup
 
-### 1. Database
+### 1. Database (Supabase)
 
-**Option A — Docker** (requires port 5432 free):
+1. Create a Supabase project and copy the **Direct connection** URI from **Project Settings → Database → Connect**.
+2. Put it in `apps/api/.env` as `DATABASE_URL`, set `DATABASE_SSL=true`.
+3. Run migrations: `alembic upgrade head`
 
-```bash
-docker compose -f ../../infra/docker/docker-compose.yml up -d
-```
-
-**Option B — [Supabase](../../docs/SUPABASE.md)** (hosted Postgres):
-
-Put the **Direct connection** URI in `apps/api/.env` as `DATABASE_URL`, set `DATABASE_SSL=true`, then `alembic upgrade head`.
-
-**Option C — PostgreSQL already on Windows** (if `InvalidPasswordError` for `campusos`):
-
-Local Postgres is listening on `5432`; it does not include the `campusos` user until you create it. As superuser (`postgres`):
-
-```bash
-psql -U postgres -f ../../scripts/setup_local_postgres.sql
-```
-
-Or set `DATABASE_URL` in `.env` to your existing Postgres user/password and create database `campusos` manually.
+See [`docs/SUPABASE.md`](../../docs/SUPABASE.md) for full steps.
 
 ### 2. Virtual environment
 
@@ -43,7 +30,7 @@ pip install -e ".[dev]"
 
 ### 3. Environment
 
-Copy repo root `.env.example` to `apps/api/.env` (or root `.env`) and adjust if needed.
+Copy `apps/api/.env.example` to `apps/api/.env` and set your Supabase credentials.
 
 ### 4. Migrations & seed
 

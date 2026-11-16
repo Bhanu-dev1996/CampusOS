@@ -16,7 +16,7 @@ python ../../scripts/seed_demo.py
 
 Requires:
 
-* Docker Postgres up (`infra/docker/docker-compose.yml`)
+* Supabase `DATABASE_URL` in `apps/api/.env` (see [`docs/SUPABASE.md`](../docs/SUPABASE.md))
 * `alembic upgrade head`
 * API package installed (`pip install -e ".[dev]"`)
 

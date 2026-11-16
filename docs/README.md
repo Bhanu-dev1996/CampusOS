@@ -46,7 +46,7 @@
 | :--- | :--- |
 | **Frontend** | Next.js (App Router), React 19, TypeScript, Tailwind CSS v4, shadcn/ui, TanStack Table v8, Recharts |
 | **Backend** | Python 3.12, FastAPI, SQLAlchemy 2.0 (async), Pydantic v2 |
-| **Data** | PostgreSQL 16 (RLS), Redis (queues, rate limits, idempotency) |
+| **Data** | PostgreSQL via [Supabase](./SUPABASE.md) (RLS), Redis (queues, rate limits, idempotency) |
 | **Auth & storage** | JWT (RS256) with `tenant_id` / `active_role` claims; S3-compatible object storage for receipts & uploads |
 
 ---
@@ -61,7 +61,7 @@ campusos/
 ├── packages/
 │   └── shared-types/        # OpenAPI-generated or hand-shared DTOs (optional)
 ├── infra/
-│   ├── docker/              # compose for local Postgres, Redis, MinIO
+│   ├── docker/              # optional local Redis (Postgres = Supabase)
 │   └── migrations/          # Alembic revisions
 ├── scripts/
 │   └── seed_demo.py         # Horizon Institute demo dataset
@@ -77,7 +77,8 @@ campusos/
 
 ### 1. Prerequisites
 
-* Docker Desktop (PostgreSQL 16, Redis, optional MinIO)
+* [Supabase](https://supabase.com) project (PostgreSQL)
+* Docker Desktop (optional, for local Redis only)
 * Node.js 20+ and `pnpm` or `npm`
 * Python 3.12+ and `uv` or `pip`
 
@@ -90,19 +91,12 @@ cd campusos
 
 | File | Purpose |
 | :--- | :--- |
-| Root [`.env.example`](../.env.example) → `.env` | Postgres/Redis credentials for **Docker Compose** only |
-| `apps/api/.env.example` → `apps/api/.env` | API: `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, etc. |
+| `apps/api/.env.example` → `apps/api/.env` | Supabase `DATABASE_URL`, `DATABASE_SSL`, `JWT_SECRET`, `CORS_ORIGINS`, etc. |
 | `apps/web/.env.local.example` → `apps/web/.env.local` | Web: `NEXT_PUBLIC_API_BASE_URL` |
 
-Keep env files **per app**; the root template is not loaded by FastAPI or Next.js.
+Configure Supabase: [`SUPABASE.md`](./SUPABASE.md). Optional Redis: `docker compose -f infra/docker/docker-compose.yml up -d`.
 
-### 3. Start infrastructure
-
-```bash
-docker compose -f infra/docker/docker-compose.yml up -d
-```
-
-### 4. Backend
+### 3. Backend
 
 ```bash
 cd apps/api
@@ -112,7 +106,7 @@ python ../../scripts/seed_demo.py
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 5. Frontend
+### 4. Frontend
 
 ```bash
 cd apps/web

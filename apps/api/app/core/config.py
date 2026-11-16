@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     app_env: str = "development"
-    database_url: str = "postgresql+asyncpg://campusos:campusos@localhost:5432/campusos"
-    """Use `postgresql+asyncpg://` (not `postgresql://`). Supabase: copy URI from Dashboard → Connect."""
+    database_url: str
+    """Supabase direct connection URI. `postgresql://` and `postgres://` are normalized to asyncpg."""
     database_ssl: bool | None = None
     """Force SSL for asyncpg. Auto-enabled when host contains `supabase.co` or `pooler.supabase.com`."""
 

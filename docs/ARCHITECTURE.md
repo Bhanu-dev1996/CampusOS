@@ -255,7 +255,7 @@ Full route and component conventions: [`UI.md`](./UI.md).
                       [S3-compatible storage]
 ```
 
-Local development uses Docker Compose (see [`README.md`](./README.md)).
+Local development uses Supabase for PostgreSQL and optional Docker Compose for Redis (see [`README.md`](./README.md) and [`SUPABASE.md`](./SUPABASE.md)).
 
 ---
 

@@ -8,18 +8,16 @@ Single monorepo: **`apps/web`** (Next.js) and **`apps/api`** (FastAPI) live in t
 | :--- | :--- |
 | [`apps/web`](./apps/web) | Next.js frontend — install deps **inside** this folder (`node_modules` lives here) |
 | [`apps/api`](./apps/api) | FastAPI backend — Python `.venv` lives here |
-| [`infra/`](./infra/README.md) | Shared Docker (Postgres, Redis) |
+| [`infra/`](./infra/README.md) | Optional local Docker (Redis) |
 | [`scripts/`](./scripts/README.md) | Repo-wide dev scripts (e.g. database seed) |
-| [`.env.example`](./.env.example) | **Infra credentials only** — copy to root `.env` for Docker |
 | `apps/api/.env` | API runtime (from `apps/api/.env.example`) |
 | `apps/web/.env.local` | Web runtime (from `apps/web/.env.local.example`) |
 
 ## Quick start
 
-### 1. Database (pick one)
+### 1. Database (Supabase)
 
-* **Supabase:** follow [`docs/SUPABASE.md`](docs/SUPABASE.md) — set `DATABASE_URL` + `DATABASE_SSL=true` in `apps/api/.env`  
-* **Local Docker:** `docker compose -f infra/docker/docker-compose.yml up -d` + default `DATABASE_URL` in `.env.example`
+Follow [`docs/SUPABASE.md`](docs/SUPABASE.md): set `DATABASE_URL` and `DATABASE_SSL=true` in `apps/api/.env`.
 
 ### 2. Backend
 
