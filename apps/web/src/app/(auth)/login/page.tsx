@@ -16,27 +16,49 @@ import { Label } from "@/components/ui/label";
 import { useSession } from "@/hooks/use-session";
 import { loginWithPassword } from "@/lib/auth";
 import { ApiError } from "@/lib/api-client";
+import { resolveTenantBySubdomain } from "@/lib/platform";
 import { roleHomePath } from "@/lib/rbac";
-import { env } from "@/lib/env";
-
 export default function LoginPage() {
   const router = useRouter();
-  const { setUser } = useSession();
+  const { setSession } = useSession();
   const [tenant, setTenant] = useState("horizon");
   const [email, setEmail] = useState("principal@horizon.edu");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [tenantLabel, setTenantLabel] = useState<string | null>(null);
+  const [tenantError, setTenantError] = useState<string | null>(null);
+
+  async function onTenantBlur() {
+    const key = tenant.trim().toLowerCase();
+    if (!key) {
+      setTenantLabel(null);
+      setTenantError(null);
+      return;
+    }
+    try {
+      const resolved = await resolveTenantBySubdomain(key);
+      setTenantLabel(resolved.name);
+      setTenantError(null);
+    } catch (err) {
+      setTenantLabel(null);
+      setTenantError(
+        err instanceof ApiError && err.status === 404
+          ? "No institution for this subdomain"
+          : null,
+      );
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      const profile = await loginWithPassword({
+      const { profile, accessToken } = await loginWithPassword({
         email,
         password,
         tenantSubdomain: tenant,
       });
-      setUser(profile);
+      setSession({ user: profile, accessToken });
       toast.success(`Welcome, ${profile.fullName}`);
       router.push(roleHomePath[profile.activeRole]);
     } catch (err) {
@@ -53,7 +75,7 @@ export default function LoginPage() {
   return (
     <Card className="border-primary/30 shadow-[0_0_24px_rgba(0,240,255,0.08)]">
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold">{env.appName}</CardTitle>
+        <CardTitle className="text-xl font-semibold">Sign in</CardTitle>
         <CardDescription>
           Sign in with your institution subdomain. After seeding the API, use
           password <code className="text-accent-cyan">CampusOS123!</code>.
@@ -66,10 +88,21 @@ export default function LoginPage() {
             <Input
               id="tenant"
               value={tenant}
-              onChange={(e) => setTenant(e.target.value)}
+              onChange={(e) => {
+                setTenant(e.target.value);
+                setTenantLabel(null);
+                setTenantError(null);
+              }}
+              onBlur={() => void onTenantBlur()}
               placeholder="horizon"
               autoComplete="organization"
             />
+            {tenantLabel ? (
+              <p className="text-xs text-accent-cyan">{tenantLabel}</p>
+            ) : null}
+            {tenantError ? (
+              <p className="text-xs text-destructive">{tenantError}</p>
+            ) : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>

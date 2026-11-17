@@ -18,6 +18,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "CampusOS",
   description: "Multi-tenant education command center",
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -28,6 +32,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         "dark",
         "h-full",
@@ -36,7 +41,10 @@ export default function RootLayout({
         jetbrainsMono.variable,
       )}
     >
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body
+        suppressHydrationWarning
+        className="flex min-h-screen flex-col bg-background text-foreground"
+      >
         <AppProviders>{children}</AppProviders>
         <Toaster richColors closeButton position="top-right" />
       </body>

@@ -1,5 +1,4 @@
 from collections.abc import AsyncGenerator, Callable
-from dataclasses import dataclass
 from typing import Annotated
 from uuid import UUID
 
@@ -9,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.api.context import AuthContext  # noqa: F401 — re-exported for route modules
 from app.core.constants import AppRole
 from app.core.errors import AppError
 from app.core.security import decode_access_token
@@ -16,15 +16,6 @@ from app.db.session import get_session, set_tenant_on_session
 from app.models.user import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
-
-
-@dataclass
-class AuthContext:
-    user_id: UUID
-    tenant_id: UUID | None
-    roles: list[AppRole]
-    active_role: AppRole
-    user: User
 
 
 async def get_db(
@@ -42,6 +33,7 @@ async def get_db(
 async def get_auth_context(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     session: Annotated[AsyncSession, Depends(get_db)],
+    x_tenant_id: Annotated[str | None, Header(alias="X-Tenant-Id")] = None,
 ) -> AuthContext:
     if not credentials:
         raise AppError("UNAUTHENTICATED", "Authentication required", status_code=401)
@@ -68,6 +60,14 @@ async def get_auth_context(
     if tenant_id and user.tenant_id and user.tenant_id != tenant_id:
         raise AppError("FORBIDDEN", "Token tenant does not match user", status_code=403)
 
+    if x_tenant_id:
+        try:
+            header_tid = UUID(x_tenant_id)
+        except ValueError as exc:
+            raise AppError("VALIDATION_ERROR", "Invalid X-Tenant-Id header", status_code=400) from exc
+        if tenant_id and header_tid != tenant_id:
+            raise AppError("FORBIDDEN", "X-Tenant-Id does not match session tenant", status_code=403)
+
     return AuthContext(
         user_id=user_id,
         tenant_id=tenant_id,
@@ -79,11 +79,24 @@ async def get_auth_context(
 
 def require_roles(*allowed: AppRole) -> Callable[..., AuthContext]:
     async def checker(ctx: Annotated[AuthContext, Depends(get_auth_context)]) -> AuthContext:
-        if ctx.active_role not in allowed and AppRole.SUPER_ADMIN not in ctx.roles:
-            raise AppError("FORBIDDEN", "Insufficient permissions", status_code=403)
-        return ctx
+        if ctx.active_role in allowed:
+            return ctx
+        if AppRole.SUPER_ADMIN in ctx.roles and ctx.active_role == AppRole.SUPER_ADMIN:
+            return ctx
+        raise AppError("FORBIDDEN", "Insufficient permissions", status_code=403)
 
     return checker
+
+
+async def require_tenant_member(
+    ctx: Annotated[AuthContext, Depends(get_auth_context)],
+) -> AuthContext:
+    if ctx.tenant_id is None:
+        raise AppError("FORBIDDEN", "Tenant context required", status_code=403)
+    return ctx
+
+
+TenantMemberCtx = Annotated[AuthContext, Depends(require_tenant_member)]
 
 
 async def get_optional_tenant_header(

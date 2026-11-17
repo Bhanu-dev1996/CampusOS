@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { loadStoredSession } from "@/lib/session-storage";
 
 export class ApiError extends Error {
   constructor(
@@ -19,7 +20,15 @@ export function setAccessToken(token: string | null) {
 }
 
 export function getAccessToken() {
-  return accessToken;
+  if (accessToken) return accessToken;
+  if (typeof window !== "undefined") {
+    const stored = loadStoredSession();
+    if (stored?.accessToken) {
+      accessToken = stored.accessToken;
+      return accessToken;
+    }
+  }
+  return null;
 }
 
 type RequestOptions = Omit<RequestInit, "body"> & {
@@ -33,14 +42,18 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const { body, skipAuth, headers, ...rest } = options;
 
+  const authHeaders: Record<string, string> = {};
+  if (!skipAuth) {
+    const token = getAccessToken();
+    if (token) authHeaders.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${env.apiBaseUrl}${path}`, {
     ...rest,
     headers: {
       "Content-Type": "application/json",
-      ...(accessToken && !skipAuth
-        ? { Authorization: `Bearer ${accessToken}` }
-        : {}),
-      ...headers,
+      ...authHeaders,
+      ...(headers as Record<string, string> | undefined),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });

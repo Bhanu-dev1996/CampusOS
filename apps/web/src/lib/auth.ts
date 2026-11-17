@@ -31,7 +31,7 @@ export async function loginWithPassword(input: {
   email: string;
   password: string;
   tenantSubdomain: string;
-}): Promise<UserProfile> {
+}): Promise<{ profile: UserProfile; accessToken: string }> {
   const tokens = await apiRequest<TokenResponse>("/auth/login", {
     method: "POST",
     skipAuth: true,
@@ -44,5 +44,5 @@ export async function loginWithPassword(input: {
 
   setAccessToken(tokens.access_token);
   const me = await apiRequest<MeResponse>("/auth/me");
-  return mapMe(me);
+  return { profile: mapMe(me), accessToken: tokens.access_token };
 }
